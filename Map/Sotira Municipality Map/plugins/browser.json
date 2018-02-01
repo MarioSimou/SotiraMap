@@ -1,0 +1,73 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-battery-status": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-camera": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-media-capture": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-console": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-contacts": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-device-motion": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-device-orientation": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-dialogs": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-file-transfer": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-geolocation": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-globalization": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-media": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-network-information": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-statusbar": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-vibration": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        }
+    },
+    "dependent_plugins": {
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "cy.sotiramunicipality.www"
+        }
+    }
+}

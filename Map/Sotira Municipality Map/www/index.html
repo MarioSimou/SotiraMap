@@ -1,0 +1,572 @@
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Διαδικτυακός Χάρτης Σωτήρας</title>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link href='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css' rel='stylesheet' />
+	<script src='https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js'></script>
+	<link rel="stylesheet" type="text/css" href="styles/style.css">
+	<!-- Measure Tool css-->
+	<link rel="stylesheet" type="text/css" href="scripts/measure tool/measure.css">
+
+
+	<!--Geojson-->
+	<script type="text/javascript" src='data/sotiras_points.geojson'/></script>
+	<script type="text/javascript" src='data/bases.geojson'></script>
+	<script type="text/javascript" src='data/coastline.geojson'></script>
+	<script type="text/javascript" src='data/districts.geojson'></script>
+	<script type="text/javascript" src='data/greenline.geojson'></script>
+	<script type="text/javascript" src='data/municipalities.geojson'></script>
+	<script type="text/javascript" src='data/postalcodes.geojson'></script>
+	<script type="text/javascript" src='data/sotira_boundaries.geojson'></script>
+
+	<!--Leaflet Providers-->
+	<script src="scripts/providers/leaflet-providers.js"></script>
+
+	<!--Marker Cluster-->
+	<link rel="stylesheet" href="plugins/MarkerCluster/dist/MarkerCluster.css" />
+	<link rel="stylesheet" href="plugins/MarkerCluster/dist/MarkerCluster.Default.css" />
+	<script src="plugins/MarkerCluster/dist/leaflet.markercluster-src.js"></script>
+
+	<!-- Routing Plugins-->
+    <link rel="stylesheet" href="plugins/Routing/dist/leaflet-routing-machine.css" />
+    <script src="plugins/Routing/dist/leaflet-routing-machine.js"></script>
+    <script src="plugins/Routing/dist/Control.Geocoder.js"></script>
+    <script type="text/javascript src='plugins/Routing/dist/routing.js"></script>
+
+    <!--OSM Geocoder-->
+    <link rel="stylesheet" type="text/css" href="plugins/Geocoder/Control.OSMGeocoder.css">
+    <script type="text/javascript" src='plugins/Geocoder/Control.OSMGeocoder.js'></script>
+
+    <!-- Load Esri Leaflet from CDN -->
+    <script src="https://unpkg.com/esri-leaflet@2.0.8"></script>
+
+    <!-- Esri Leaflet Geocoder 
+    <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.6/dist/esri-leaflet-geocoder.css">-->
+    <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.6"></script>
+    <link rel="stylesheet" type="text/css" href="plugins/Esri Geocoder/src/esri-leaflet-geocoder.css">
+
+    <!-- Search Attributes-->
+    <link rel="stylesheet" type="text/css" href="plugins/Search Attributes/src/leaflet-search.css">
+    <script type="text/javascript" src='plugins/Search Attributes/src/leaflet-search.js'></script>
+
+
+
+</head>
+<body>
+<div id="map-wrapper">
+		<div id="button-wrapper-upper">
+			<div>
+				<label><input type="button" id="geolocation-button" class="button" title="Εφαρμογή γεωεντοπισμού" /></label>
+			</div>
+			<div>
+				<label><input type="button" id="initial-zoom-button" class="button" title="Επαναφορά αρχικής μεγέθυνσης"></label>
+			</div>
+			<div>
+				<label>
+					<input type="button" id="distance-button" class="button">
+				</label>
+			</div>
+		</div>
+		<div id="button-wrapper-bottom">
+			<label>
+				<input type="button" id="routing-button" class="button" title="Εφαρμογή Πλοήγησης">
+			</label>
+		</div>
+	<div id='map'></div>
+		
+	
+</div>
+		<script type="text/javascript">
+
+
+
+		function classification(layer,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13){
+			if (layer.properties.Category == 'Θρησκευτικά μνημεία'){
+				return c1;
+			}
+			else if (layer.properties.Category == 'Δραστηριότητες στη φύση'){
+				return c2;
+			}
+			else if (layer.properties.Category == 'Ποδηλατόδρομοι'){
+				return c3;
+			}
+			else if (layer.properties.Category == 'Μουσεία'){
+				return c4;
+			}
+			else if (layer.properties.Category == 'Εκπαιδευτικά κέντρα'){
+				return c5;
+			}
+			else if (layer.properties.Category == 'Ταβέρνες / Cafe / Εστιατόρια'){
+				return c6;
+			}
+			else if (layer.properties.Category == 'Παραλίες'){
+				return c7;
+			}
+			else if (layer.properties.Category == 'Αρχαιολογικοί χώροι'){
+				return c8;
+			}
+			else if (layer.properties.Category == 'Θέατρα / Χώροι θεάματος'){
+				return c9;
+			}
+			else if (layer.properties.Category == 'Καταλύματα / Ξενοδοχεία'){
+				return c10;
+			}
+			else if (layer.properties.Category == 'Σημεία φυσικού κάλλους'){
+				return c11;
+			}
+			else if (layer.properties.Category == 'Αθλητικοί Χώροι'){
+				return c12;
+			}
+			else if (layer.properties.Category == 'Σημεία ιδιαίτερου ενδιαφέροντος'){
+				return c13;
+			}
+		}
+
+		function pointToLayerFun (geoJsonPoint, latlng){
+
+			var property = geoJsonPoint.properties;
+			var coordinates = latlng.toString();
+			var long = parseFloat(coordinates.split(',')[1]);
+			var lat = parseFloat(coordinates.split('(')[1]);
+			return L.marker(latlng, {
+				icon: L.mapbox.marker.icon({
+			        'marker-size': 'large',
+			        'marker-symbol': classification(geoJsonPoint,'religious-christian','playground','bicycle','museum','college','restaurant','swimming','monument','theatre','lodging','park','soccer','soccer'),
+			        'marker-color': classification(geoJsonPoint,'#e4f20b','#06520b','#f24906','#595555','#0ab290','#ff000c','#1e00ff','#616161','#d80733','#623500','#00983d','#6899b3','#6b9171')
+			    })
+			}).bindPopup('<h2>Πληροφορίες</h2><hr><strong><em>Name : </em></strong>'+ property.Name+ '<br> <strong><em>Category : </em></strong>'+ property.Category+'<br> <strong><em>Γεωγραφικό Μήκος : </em></strong>'+ long + '&#176;<br> <strong><em>Γεωγραφικό Πλάτος : </em></strong>'+ lat+'&#176;');
+
+		}
+
+
+		function getColor (attribute){
+			if (attribute >= 28477){
+				return '#67000d';
+			}else if (attribute < 28477 && attribute >= 13644){
+				return '#a50f15';
+			}else if (attribute < 13644 && attribute >= 6443){
+				return '#cb181d';
+			}else if (attribute < 6443 && attribute >= 2695){
+				return '#ef3b2c';
+			}else if (attribute < 2695 && attribute >= 500){
+				return '#fb6a4a';
+			}
+			else if (attribute < 500){
+				return '#fc9272';
+			}
+		}
+
+		function setStyleFun(geojson){
+			return object = {
+				color: '#fffcfc',
+				weight: 3,
+				opacity: 1,
+				dashArray: 4,
+				fillColor : getColor(geojson.properties.TOTAL_KATI),
+				fillOpacity : 1
+			}
+		}
+
+		
+
+		function highlightFeature(e){
+			var layer = e.target;
+			layer.setStyle({
+				color: '#484545',
+				weight: 5,
+				dashArray: 0,
+				fillOpacity: 1
+			});
+			municip.update(layer.feature.properties)
+
+		if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    		}
+		}
+
+		function resetHighlight(e){
+			var layer = e.target;
+			municipalities.resetStyle(e.target);
+			municip.update();
+		}
+
+		function clickZoom(e){
+			var layer = e.target;
+			map.fitBounds(layer.getBounds());
+		}
+
+
+
+		function onEachFeature(feature, layer) {
+		    layer.on({
+		        mouseover: highlightFeature,
+		        mouseout: resetHighlight,
+		        click: clickZoom,
+		    });
+		}
+
+		function highlightPoint (e){
+			var layer = e.target;
+			label.update(layer.feature.properties);
+		}
+		function resetHighlightPoint(e){
+			var layer = e.target;
+			label.update();
+		}
+
+		function pointsOnEachFeature (feature,layer){
+			layer.on({
+				mouseover : highlightPoint,
+				mouseout : resetHighlightPoint
+			});
+		}
+
+		function ObjectsOptions(strOpt,colOpt,weiOpt,OpaOpt,DasOpt,filOpt,ficOpt,fioOpt){
+			return options ={
+				stroke : strOpt,
+				color: colOpt,
+				weight: weiOpt,
+				opacity: OpaOpt,
+				dashArray: DasOpt,
+				fill: filOpt,
+				fillColor: ficOpt,
+				fillOpacity: fioOpt
+			}
+		}
+
+	
+		// Mapbox Access Token
+		L.mapbox.accessToken = 'pk.eyJ1IjoibWFyaW9zc2ltb3UiLCJhIjoiY2o1ZHZjbjF4MDBodTJwbzFqbWczOHE1MSJ9.XB-Vf3xlOugHy3EbxuFHvA';
+		// Map object
+		var map = L.mapbox.map('map','mapbox.satellite', {minZoom: 10, maxZoom: 17}).setView([0, 0],11);
+
+   		 // Mapbox Basemaps
+		var mapboxStreets = L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v10');
+		var mapboxOutdoors =L.mapbox.styleLayer('mapbox://styles/mapbox/outdoors-v10');
+		var mapboxDark = L.mapbox.styleLayer('mapbox://styles/mapbox/dark-v9');
+		var mapboxLight = L.mapbox.styleLayer('mapbox://styles/mapbox/light-v9');
+		var mapboxSatellite = L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-v9');
+		var mapboxSatelliteStreets = L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-streets-v10');
+		var mapboxTrafficDay = L.mapbox.styleLayer('mapbox://styles/mapbox/traffic-day-v2');
+		var mapboxTrafficNight = L.mapbox.styleLayer('mapbox://styles/mapbox/traffic-night-v2');
+
+		// GeoJson
+
+		var points = L.geoJson(points, {
+				pointToLayer : pointToLayerFun,
+				onEachFeature : pointsOnEachFeature
+		});
+		map.fitBounds(points.getBounds());
+
+		var sotiraBoundaries= L.geoJson(sotiraBoundaries, {
+			style : ObjectsOptions(true,'#565454',3,1,4,true,'#f09090',0.15)
+		}).addTo(map);
+
+		var coastline= L.geoJson(coastline, {
+			style : ObjectsOptions(true,'#1808e4',3,1,0,false)
+		});
+
+		var districts = L.geoJson(districts, {
+			style : ObjectsOptions(true, '#8b0404',2,1,3,false)
+		});
+
+		var municipalities = L.geoJson(municipalities, {
+			style : setStyleFun,
+			onEachFeature : onEachFeature
+		});
+
+		var postlCodes = L.geoJson(postalcodes,{
+				style: ObjectsOptions(true,'#4b4b4b',1,1,5,true,'#ffa3a9',0.05)
+		});
+
+		var greenline = L.geoJson(greenline, {
+			style : ObjectsOptions(true, '#00650e',3,1,0,false)
+		});
+
+		
+		// Label Control
+		L.Control.Attributes = L.Control.extend ({
+			onAdd : function (map){
+				this._div = document.createElement('div');
+				this._div.className = 'label';
+				this.update();
+				return this._div;
+			},
+			update : function (props){
+				this._div.innerHTML = '<h4>Πληροφορίες Σημείων</h4><hr>'+ (props ?
+        '<b>' +props.Name + '</br>'+'<p>'+props.Category+ '</p>' 
+        :'Πλοηγήσου πάνω από τον χάρτη')
+			}
+		});
+
+		L.control.attributes = function (opts){
+			return new L.Control.Attributes(opts);
+		}
+		var label = L.control.attributes({position : 'bottomright'});
+		//map.addControl(label);
+
+		// hasControl
+
+		L.HasControl = L.Control.extend({
+			onAdd : function(map){
+				return this.validation();
+			},
+			validation : function (){
+				if (!label._map){
+					return true;
+				}else{
+					return false;
+				}
+			}
+		});
+
+		L.hasControl = function (){
+			return new L.HasControl();
+		}
+
+		L.HasBoundControl = L.Control.extend({
+			onAdd : function(map){
+				return this.validation();
+			},
+			validation : function (){
+				if (!municip._map){
+					return true;
+				}else{
+					return false;
+				}
+			}
+		});
+		
+		L.hasBoundControl = function (){
+			return new L.HasBoundControl();
+		}
+
+		var hasControl = L.hasControl(); // labelsHasControl
+		var hasBoundControl = L.hasBoundControl(); // municipalitiesHasControl
+
+		var interval = setInterval(function(){layerCheck(label,points,cluster,hasControl)}, 100);
+		var interval = setInterval(function(){layerCheck(municip,municipalities,null,hasBoundControl)}, 100);
+
+
+		function layerCheck (control,layer1,layer2,checkControl){
+			
+			if (map.hasLayer(layer1) == true || map.hasLayer(layer2) == true){
+
+					if (checkControl.validation() == true){ // hasControl is a variable of label
+						map.addControl(control);
+					}
+			}else {
+				map.removeControl(control);
+				}
+		}
+		
+		// info Control
+			var municip = L.control({position : 'bottomright'});
+		municip.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'label'); // create a div with a class "info"
+			this.update();
+			return this._div;
+			};
+		municip.update = function (props) {
+    		this._div.innerHTML = '<h4>Πληθυσμιακά Δεδομένα Κύπρου</h4><hr>'+(props ?
+        '<b>' + props.VIL_NM_G + '</br>'+'<p>'+props.SYNOLO_PLY +  ' κάτοικοι'+'<br>'+(parseFloat(props.AREA)/1000000).toFixed(2)+ ' τετραγωνικά χιλίομετρα </p>'
+        : 'Πλοηγήσου πάνω από τον χάρτη');
+			};
+			map.addControl(municip);
+
+		
+		// Marker Cluster Plugin
+
+		var MarkersOptions = {
+			showCoverageOnHover : true,
+			zoomToBoundsOnClick: true,
+			spiderfyOnMaxZoom: false,
+			removeOutsideVisibleBounds: true,
+			animate: true,
+			disableClusteringAtZoom: 15, // specifies the maximum zoom of clustering
+			maxClusterRadius: 125,
+			polygonOptions: ObjectsOptions(true,'#be2f2f',4,1,3,true,'#ffa3a9',0.4),
+			singleMarkerMode: false,
+			spiderfyDistanceMultiplier: 1,
+			spiderLegPolylineOptions: ObjectsOptions(true,'#060606',5,5,1,true,'#985555',0.8)
+
+		}
+
+		var cluster = L.markerClusterGroup(MarkersOptions);
+		var allLayers = L.layerGroup([points]);
+		cluster.addLayer(allLayers);
+		map.addLayer(cluster);
+
+
+		// Objects
+
+
+
+		var basemaps = {
+			'Streets' : mapboxStreets,
+			'Outdoors' : mapboxOutdoors,
+			'Dark' : mapboxDark,
+			'Light' : mapboxLight,
+			'Satellite' : mapboxSatellite,
+			'Satellite Streets': mapboxSatelliteStreets,
+			'Traffic Day': mapboxTrafficDay,
+			'Traffic Night': mapboxTrafficNight
+		};
+
+
+
+
+		var layers = {
+			'<img src="legend/pointsofinterest.png" /> Σημεία Ενδιαφέροντος' : points,
+			'<img src="legend/cluster.png" /> Θύλακας Σημείων': cluster,
+			'<img src="legend/municipality.png" /> Όρια Δήμων/Κοινοτήτων': municipalities,
+			'<img src="legend/sotira_boundaries.png" /> Όρια Σωτήρας': sotiraBoundaries,
+			'<img src="legend/districts.png" /> Επαρχίες Κύπρο' : districts,
+			'<img src="legend/coastline.png" /> Ακτογραμμή' : coastline,
+			'<img src="legend/greenline.png" /> Πράσινη Γραμμή': greenline,
+			'<img src="legend/postalcodes.png" /> Ταχυδρομικοί Κώδικες': postlCodes		
+		};
+
+		var ControlLayer = L.control.layers (basemaps, layers);
+		map.addControl(ControlLayer);
+
+		
+		/*
+		// OSM basemaps
+		var osmdefault = L.tileLayer.provider('OpenStreetMap.Mapnik');
+		var osmGermanStyle = L.tileLayer.provider('OpenStreetMap.DE');
+		var osmBlackWhite = L.tileLayer.provider('OpenStreetMap.BlackAndWhite');
+		var osmHot = L.tileLayer.provider('OpenStreetMap.HOT');
+		
+		// Esri Basemaps
+		var esriWorldStreetMap = L.tileLayer.provider('Esri.WorldStreetMap');
+			//map.addLayer(esriWorldStreetMap)
+		var esriDeLorme = L.tileLayer.provider('Esri.DeLorme');
+		var esriWorldTopoMap = L.tileLayer.provider('Esri.WorldTopoMap');
+		var esriWorldImagery = L.tileLayer.provider('Esri.WorldImagery');
+		var esriWorldTerrain = L.tileLayer.provider('Esri.WorldTerrain');
+		var esriWorldShadedRelief = L.tileLayer.provider('Esri.WorldShadedRelief');
+		var esriWorldPhysical = L.tileLayer.provider('Esri.WorldPhysical');
+		var esriOceanBasemap = L.tileLayer.provider('Esri.OceanBasemap');
+		var esriNatGeoWorldMap = L.tileLayer.provider('Esri.NatGeoWorldMap');
+		var esriWorldGrayCanvas = L.tileLayer.provider('Esri.WorldGrayCanvas');
+		*/
+		 var initialZoom = document.getElementById('initial-zoom-button');
+      initialZoom.onclick = function (){
+        map.fitBounds(points.getBounds());
+      }
+
+      	/*
+
+
+      	 // create the geocoding control and add it to the map  	 
+    var searchControl = L.esri.Geocoding.geosearch({position: 'topright', placeholder: 'Αναζήτησε Τοποθεσία',title: 'Εφαρμογή Αναζήτηση Τοποθεσίών'}).addTo(map);
+
+    // create an empty layer group to store the results and add it to the map
+    var results = L.layerGroup().addTo(map);
+
+    // listen for the results event and add every result to the map
+ searchControl.on("results", function(data) {
+        results.clearLayers();
+        for (var i = data.results.length - 1; i >= 0; i--) {
+        	var marker = L.marker(data.results[i].latlng,{icon : L.mapbox.marker.icon({
+              'marker-size': 'large',
+              'marker-symbol': 'marker',
+              'marker-color': '#1e00b4'})});
+            results.addLayer(marker);
+        }
+        document.onkeyup = function(event){
+    	if (event.keyCode == 27){
+    		map.removeLayer(marker);
+    	}
+    }
+    });*/
+
+
+		function addClass(element,value){
+			if (element.className == ''){
+				element.className = value;
+			}else {
+				newClassName = element.className;
+				newClassName+= ' ';
+				newClassName+= value;
+				element.className = newClassName;
+			}
+		}
+ 
+		var allInputs = document.getElementsByTagName('input');
+
+			for (var i=0; i < allInputs.length; i++){
+				oldbutton = allInputs[i].className;
+				allInputs[i].onmouseover = function(){
+					addClass(this,'extrabutton');
+				}
+				allInputs[i].onmouseout = function(){
+					this.className = this.className.split(' ')[0];
+				}
+			}
+
+		var SearchLayers=L.layerGroup();
+		SearchLayers.addLayer(points);
+		var ControlSearch = new L.Control.Search({
+
+		layer: SearchLayers,
+		propertyName: 'Name',
+	});
+		map.addControl(ControlSearch);	
+		map.removeLayer(SearchLayers);
+
+
+
+		/*var controlLayer = document.querySelectorAll('.leaflet-control-layers-toggle');
+		addClass(controlLayer[0],'button');*/
+
+		// Title
+		L.Control.Title = L.Control.extend({
+			onAdd : function (){
+				this._a = L.DomUtil.create('a', 'map-title');
+				this._a.innerHTML = document.getElementsByTagName('title')[0].innerHTML;
+				this._a.style.color = '#302f2f';
+ 				return this._a;
+			},
+			link : function (text){
+				this._a.href = text;
+				return this._a;
+			}
+		});
+
+		L.control.title = function (opts){
+			return new L.Control.Title(opts);
+		}
+		var controlTitle = L.control.title({position : 'topleft'}).addTo(map);
+		controlTitle.link('https://www.sotira.org.cy/');
+
+		// Control Zoom
+		controlZoom = document.getElementsByClassName('leaflet-control-zoom')[0];
+		map.removeControl(controlZoom);
+
+		controlZoom = L.control.zoom({position : 'topleft'})
+			.addTo(map);
+
+		// Control Scale
+		L.control.scale({maxWidth: 200}).addTo(map);
+
+		// Control Attribution
+		controlAttribution = L.control.attribution()
+			.setPrefix('all copyrights reserved ')
+			.addAttribution('&#169; Marios Simou')
+			.addTo(map);
+		</script>
+
+		<!-- Scripts -->
+		<script type="text/javascript" src='scripts/geolocation/geolocation.js'></script>
+		<script type="text/javascript" src='scripts/measure tool/measure.js'></script>
+		<script type="text/javascript" src='plugins/Routing/routing.js'></script>
+</body>
+</html>
+

@@ -1,0 +1,61 @@
+#distance-button{
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin-top: 11.2em;
+	margin-left: 0.8em;
+	padding: 0;
+	background-image: url('images/ruler.png');
+	z-index: 1;
+	background-color: #f8ecec;
+	border: solid #f8ecec 2px; 
+}
+
+.button {
+	width: 2.15em;
+	height: 2.15em;
+	border: solid #f8ecec 2px; 
+	border-radius: 6px;
+	background-color: #f8ecec;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+}
+.extrabutton {
+    opacity: 0.6;
+}
+
+
+.form {
+	width: auto;
+	height: auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin-top: 0.5em;
+	margin-left: 5em;
+	padding: 10px;
+	z-index: 2;
+	background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+	font-size: 15px;
+    line-height: 10px;
+    border: 2px #8e8888 solid;
+}
+
+.text-container {
+	background-color: transparent;
+	border: 0;
+	width: 5em;
+	text-align: center;
+}
+
+.note {
+	font-size: 12px;
+	font-family: "Times New Roman", Georgia, Serif;
+	display: block;
+	width: auto;
+	text-align: center;
+	font-weight: bold;
+}
